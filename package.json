@@ -4,7 +4,9 @@
   "description": "A simple utility for fetching a secret from AWS secrets manager into file that can be sourced by bash.",
   "main": "fetch-secret.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm audit",
+    "preversion": "npm test",
+    "postversion": "git push --follow-tags"
   },
   "repository": {
     "type": "git",
