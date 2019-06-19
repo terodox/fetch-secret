@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // This requires the assumed roles have the following permissions:
 // secretsmanager:GetSecretValue
 
