@@ -1,6 +1,6 @@
 {
   "name": "fetch-secret",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A simple utility for fetching a secret from AWS secrets manager into file that can be sourced by bash.",
   "main": "fetch-secret.js",
   "bin": {
