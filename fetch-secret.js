@@ -106,6 +106,7 @@ async function getSecretWithCredentials({ roleArn, secretArn }) {
         for(const [key, value] of Object.entries(secretJson)) {
             const bashSafeValue = String(value).replace(/'/g, "'\"'\"'");
             const bashExportString = `\nexport ${key}='${bashSafeValue}'`;
+            console.log('Appending to:', options.output);
             fs.appendFileSync(options.output, bashExportString);
         }
     } catch(error) {
