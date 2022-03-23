@@ -26,8 +26,8 @@ const commandLineOptions = [
         name: 'secret',
         alias: 's',
         type: String,
-        typeLabel: '{underline AWS ARN}',
-        description: 'Seret ARNs to read'
+        typeLabel: '{underline AWS ARN | string}',
+        description: 'Secret ARN/name to read'
     },
     {
         name: 'help',
@@ -41,7 +41,7 @@ const commandLineOptions = [
 function displayUsage() {
     const sections = [
         {
-            header: 'Fetch Secretes',
+            header: 'Fetch Secrets',
             content: 'Fetch secrets from secrets manager and output to a file'
         },
         {
@@ -55,39 +55,45 @@ function displayUsage() {
 
 function getOptions() {
     const options = commandLineArgs(commandLineOptions);
+
     if(options.help) {
         displayUsage();
         process.exit(0);
     }
-    if(!options.output || !options.role || !options.secret) {
+    if(!options.output || !options.secret) {
         displayUsage();
         process.exit(1);
     }
     return options;
 }
 
-async function getSecretWithCredentials({ roleArn, secretArn }) {
+async function getCredentialsForRole({ roleArn }) {
     const sts = new AWS.STS();
 
     console.log('Assuming role:', roleArn);
-    const assumeRoleResponse = await sts.assumeRole({
+    const { Credentials } = await sts.assumeRole({
         RoleArn: roleArn,
         RoleSessionName: 'FetchSecretsAssumingRole',
         // 900 seconds is the MINIMUM that can be set
         DurationSeconds: 900
     }).promise();
-    const credentials = assumeRoleResponse.Credentials;
 
+    return {
+        accessKeyId:     Credentials.AccessKeyId,
+        secretAccessKey: Credentials.SecretAccessKey,
+        sessionToken:    Credentials.SessionToken
+    };
+}
+
+async function getSecretWithCredentials({ credentials, secretId }) {
     const secretsManager = new AWS.SecretsManager({
         region: 'eu-west-1',
-        accessKeyId: credentials.AccessKeyId,
-        secretAccessKey: credentials.SecretAccessKey,
-        sessionToken: credentials.SessionToken,
+        ...credentials
     });
 
-    console.log('Fetching secret for arn:', secretArn);
+    console.log('Fetching secret for arn:', secretId);
     const secretResponse = await secretsManager.getSecretValue({
-            SecretId: secretArn,
+            SecretId: secretId,
             VersionStage: "AWSCURRENT"
     }).promise();
 
@@ -96,18 +102,23 @@ async function getSecretWithCredentials({ roleArn, secretArn }) {
 
 (async function() {
     try {
-        const options = getOptions();
+        const {
+            output,
+            role: roleArn,
+            secret: secretId
+        } = getOptions();
 
+        const credentials = roleArn ? await getCredentialsForRole({ roleArn }) : undefined;
         const secretJson = await getSecretWithCredentials({
-            roleArn: options.role,
-            secretArn: options.secret
+            credentials,
+            secretId
         });
 
         for(const [key, value] of Object.entries(secretJson)) {
             const bashSafeValue = String(value).replace(/'/g, "'\"'\"'");
             const bashExportString = `\nexport ${key}='${bashSafeValue}'`;
-            console.log('Appending to:', options.output);
-            fs.appendFileSync(options.output, bashExportString);
+            console.log('Appending to:', output);
+            fs.appendFileSync(output, bashExportString);
         }
     } catch(error) {
         console.error(error);
