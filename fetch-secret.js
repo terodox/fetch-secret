@@ -20,7 +20,7 @@ const commandLineOptions = [
         alias: 'r',
         type: String,
         typeLabel: '{underline AWS ARN}',
-        description: 'Role ARN to assume for fetching secret'
+        description: 'Optional role ARN to assume when fetching secret'
     },
     {
         name: 'secret',
