@@ -22,6 +22,9 @@
     "bash",
     "cli"
   ],
+  "engines": {
+      "node": ">=8.0.0"
+  },
   "author": "Andy Desmarais <terodox@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -29,8 +32,8 @@
   },
   "homepage": "https://github.com/terodox/fetch-secret#readme",
   "dependencies": {
-    "aws-sdk": "2.478.0",
-    "command-line-args": "5.1.1",
-    "command-line-usage": "5.0.5"
+    "aws-sdk": "2.1098.0",
+    "command-line-args": "5.2.1",
+    "command-line-usage": "6.1.1"
   }
 }
