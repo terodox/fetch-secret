@@ -7,5 +7,11 @@ A simple utility for fetching a secret from AWS secrets manager into file that c
 ## Usage
 
 ```bash
+npx fetch-secrets --output ./fileToAppendTo.sh --secret arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:someSecretName
+```
+
+**With automatic role assumption**
+
+```bash
 npx fetch-secrets --output ./fileToAppendTo.sh --role arn:aws:iam::${AWS_ACCOUNT_ID}:role/some-role --secret arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:someSecretName
 ```
